@@ -99,13 +99,13 @@ fun ZFS_Snapshot(host:Host, zfs:String, snapshot:String) {
 fun ZFS_Send(srcHost:Host, srcSnapshot:String, parentSnapshot:String, destHost:Host, remoteZFS:String) {
     var runResult: ProcessResult
     if(parentSnapshot != "") {
-        if(destHost.isLocal()) {
+        if(destHost.host == srcHost.host) {
             runResult = srcHost.execute("zfs send -I '$parentSnapshot' '$srcSnapshot' | zfs recv '$remoteZFS'")
         } else {
             runResult = srcHost.execute("zfs send -I '$parentSnapshot' '$srcSnapshot' | ssh ${destHost.user}@${destHost.host} zfs recv '$remoteZFS'")
         }
     } else {
-        if(destHost.isLocal()) {
+        if(destHost.host == srcHost.host) {
             runResult = srcHost.execute("zfs send '$srcSnapshot' | zfs recv '$remoteZFS'")
         } else {
             runResult = srcHost.execute("zfs send '$srcSnapshot' | ssh ${destHost.user}@${destHost.host} zfs recv '$remoteZFS'")
