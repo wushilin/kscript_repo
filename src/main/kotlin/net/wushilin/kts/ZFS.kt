@@ -103,11 +103,13 @@ fun ZFS_Send(srcHost:Host, srcSnapshot:String, parentSnapshot:String, destHost:H
         sshtag = ""
     }
     if(parentSnapshot != "") {
-       var command = "zfs send -I '$parentSnapshot' '$srcSnapshot' | $sshtag zfs recv '$remoteZFS'"
-       runResult = srcHost.execute(command)
+        var command = "zfs send -I '$parentSnapshot' '$srcSnapshot' | $sshtag zfs recv '$remoteZFS'"
+        println("Executing $command")
+        runResult = srcHost.execute(command)
     } else {
         var command = "zfs send '$srcSnapshot' | $sshtag zfs recv '$remoteZFS'"
-       runResult = srcHost.execute(command)
+        println("Executing $command")
+        runResult = srcHost.execute(command)
     }
     if(!runResult.isSuccessful()) {
         throw IOException("ZFS Send error: ${runResult.error()}")
