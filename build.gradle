@@ -2,14 +2,37 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
     id 'java'
     id 'maven-publish'
+    id 'signing'
+    id 'java-library'
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+
 }
 
 group 'net.wushilin'
+archivesBaseName = "kscript_repo"
 version '1.0.0'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    mavenLocal()
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            //stagingProfileId = sonatypeStagingProfileId
+            username = ossrhUsername
+            password = ossrhPassword
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+        }
+    }
 }
 
 dependencies {
@@ -33,10 +56,61 @@ test {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            artifactId = 'kscript_repo'
             from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'KScript Repository'
+                description = 'Repository for Kotlin Script'
+                url = 'https://github.com/wushilin/kscript_repo'
+                properties = [
+                        myProp: "value",
+                        "prop.with.dots": "anotherValue"
+                ]
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'wushilin'
+                        name = 'Wu Shilin'
+                        email = 'wushilin.sg@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/wushilin/kscript_repo.git'
+                    developerConnection = 'scm:git:git://github.com/wushilin/kscript_repo.git'
+                    url = 'https://github.com/wushilin/kscript_repo'
+                }
+            }
         }
     }
-    repositories {
-        mavenLocal()
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
     }
 }
+
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+

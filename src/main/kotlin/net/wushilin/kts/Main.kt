@@ -2,15 +2,28 @@ package net.wushilin.kts
 
 import java.io.File
 import java.io.InputStream
+import java.nio.channels.FileChannel
+import java.nio.file.StandardOpenOption
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
+
 fun KTS_Version():String {
     return "v1.0.0"
 }
 
+fun flock(path:String):Flock {
+    return Flock(path)
+}
+
+data class Flock (val path:String):AutoCloseable{
+    private var channel:FileChannel = FileChannel.open(File(path).toPath(), StandardOpenOption.APPEND)
+    override fun close() {
+        channel.close()
+    }
+}
 fun <E> nextBatch(what:MutableCollection<E>, limit:Int):Collection<E> {
     val iter = what.iterator()
     val result = mutableListOf<E>()
