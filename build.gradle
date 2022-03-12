@@ -1,14 +1,15 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
     id 'java'
+    id 'maven-publish'
 }
 
-group 'net.wushilin.kts'
-version '1.0-SNAPSHOT'
+group 'net.wushilin'
+version '1.0.0'
 
 repositories {
     mavenCentral()
-    mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
@@ -27,4 +28,15 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }
