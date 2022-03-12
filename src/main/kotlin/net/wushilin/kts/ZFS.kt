@@ -176,8 +176,42 @@ fun ZFS_GetSnapShot(host: Host, name:String):List<ZFSSnapShot>{
     return result
 }
 
+fun ZFS_GetProperty(host:Host, name:String):Map<String, ZFSProperty> {
+    val result = mutableMapOf<String, ZFSProperty>()
+    val runResult = host.execute("zfs get all '$name'")
+    if(!runResult.isSuccessful()) {
+        throw IOException("Failed get ZFS property: ${runResult.error()}")
+    }
+
+    val outputs = runResult.outputs().toMutableList()
+    val firstLine = outputs.removeFirst()
+    val startFirst = firstLine.indexOf("NAME")
+    val startSecond = firstLine.indexOf("PROPERTY")
+    val startThird = firstLine.indexOf("VALUE")
+    val startLast = firstLine.indexOf("SOURCE")
+    outputs.forEach {
+        if(startLast >= it.length) {
+            return@forEach
+        }
+        val name = it.substring(startFirst, startSecond).trim()
+        val property = it.substring(startSecond, startThird).trim()
+        var value = it.substring(startThird, startLast).trim()
+        var source = it.substring(startLast).trim()
+        if(source == "-") {
+            source = ""
+        }
+        if(value == "-") {
+            value = ""
+        }
+        var newStat = ZFSProperty(name, property, value, source)
+        result[property] = newStat
+    }
+    return result
+}
+
 data class ZFSSnapShot(var zfs:String, var snapshot:String, val used:String, val available:String, val refer:String, val mountPoint:String)
 data class ZFS(val name:String, val used:String, val available:String, val refer:String, val mountPoint:String)
 data class ZPoolState(val name:String, val size:String, val cap:Float, val health:String)
 data class ZPoolStatus(val name:String, val state:String, val diskStatus:List<ZPoolDiskStatus>, val errors:String)
 data class ZPoolDiskStatus(val name:String, val state:String, val readError:Int, val writeError:Int, val cksumError:Int)
+data class ZFSProperty(val zfs:String, val propertyName:String, val propertyValue:String, val source:String)
