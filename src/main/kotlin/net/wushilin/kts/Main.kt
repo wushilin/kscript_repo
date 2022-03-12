@@ -1,6 +1,8 @@
 package net.wushilin.kts
 
+import java.io.Closeable
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.nio.channels.FileChannel
 import java.nio.file.StandardOpenOption
@@ -18,10 +20,15 @@ fun flock(path:String):Flock {
     return Flock(path)
 }
 
-data class Flock (val path:String):AutoCloseable{
-    private var channel:FileChannel = FileChannel.open(File(path).toPath(), StandardOpenOption.APPEND)
+data class Flock (val path:String): Closeable {
+    var fos = FileOutputStream(path)
+    var channel = fos.getChannel()
+    var lock = channel.lock()
+
     override fun close() {
+        lock.close()
         channel.close()
+        fos.close()
     }
 }
 fun <E> nextBatch(what:MutableCollection<E>, limit:Int):Collection<E> {
