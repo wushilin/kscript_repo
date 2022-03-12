@@ -98,18 +98,16 @@ fun ZFS_Snapshot(host:Host, zfs:String, snapshot:String) {
 
 fun ZFS_Send(srcHost:Host, srcSnapshot:String, parentSnapshot:String, destHost:Host, remoteZFS:String) {
     var runResult: ProcessResult
+    var sshtag = "ssh ${destHost.user}@${destHost.host}"
+    if(destHost.isTheSame(srcHost)) {
+        sshtag = ""
+    }
     if(parentSnapshot != "") {
-        if(destHost.host == srcHost.host) {
-            runResult = srcHost.execute("zfs send -I '$parentSnapshot' '$srcSnapshot' | zfs recv '$remoteZFS'")
-        } else {
-            runResult = srcHost.execute("zfs send -I '$parentSnapshot' '$srcSnapshot' | ssh ${destHost.user}@${destHost.host} zfs recv '$remoteZFS'")
-        }
+       var command = "zfs send -I '$parentSnapshot' '$srcSnapshot' | $sshtag zfs recv '$remoteZFS'"
+       runResult = srcHost.execute(command)
     } else {
-        if(destHost.host == srcHost.host) {
-            runResult = srcHost.execute("zfs send '$srcSnapshot' | zfs recv '$remoteZFS'")
-        } else {
-            runResult = srcHost.execute("zfs send '$srcSnapshot' | ssh ${destHost.user}@${destHost.host} zfs recv '$remoteZFS'")
-        }
+        var command = "zfs send '$srcSnapshot' | $sshtag zfs recv '$remoteZFS'"
+       runResult = srcHost.execute(command)
     }
     if(!runResult.isSuccessful()) {
         throw IOException("ZFS Send error: ${runResult.error()}")

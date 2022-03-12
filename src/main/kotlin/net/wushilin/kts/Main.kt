@@ -86,7 +86,7 @@ fun nextToken(what:String, delimeter:String): Pair<String, String> {
     return what.substring(startIndex).trim() to ""
 }
 
-class Host(val user:String, val host:String, val shell:String = "sh") {
+data class Host(val user:String, val host:String, val shell:String = "sh") {
     fun ping():Boolean {
         val result = execute("echo HELLO")
         return result.isSuccessful() && result.outputs().isNotEmpty() && result.outputs()[0] == "HELLO"
@@ -100,6 +100,10 @@ class Host(val user:String, val host:String, val shell:String = "sh") {
     }
     fun isLocal():Boolean {
         return "localhost".equals(host, ignoreCase = true) || "127.0.0.1" == host || "::1" == host
+    }
+
+    fun isTheSame(other:Host):Boolean {
+        return host == other.host && user == other.user
     }
 }
 class Run {
