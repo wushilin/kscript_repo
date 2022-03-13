@@ -147,7 +147,7 @@ fun ZFS_List(host: Host):List<ZFS> {
 }
 
 fun ZFS_GetSnapShot(host: Host, name:String):List<ZFSSnapShot>{
-    var execResult = host.execute("zfs list -t snapshot '$name'")
+    var execResult = host.execute("zfs list -t snapshot -r '$name'")
     if(!execResult.isSuccessful()) {
         throw IOException("zfs list -t snapshot failed: ${execResult.error()}")
     }
@@ -161,6 +161,9 @@ fun ZFS_GetSnapShot(host: Host, name:String):List<ZFSSnapShot>{
         var (matched, groups) = matchWhole(line, "^\\s*(.*?)\\s+(\\d\\S+)\\s+(\\S+)\\s+(\\d\\S+)\\s+(\\S+)\\s*$")
         if(matched) {
             var snapshotName = groups[1]
+            if(snapshotName.indexOf("$name@") == -1) {
+                return@forEach
+            }
             var used = groups[2]
             var available = groups[3]
             var refer = groups[4]
