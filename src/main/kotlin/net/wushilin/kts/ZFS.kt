@@ -161,7 +161,7 @@ fun ZFS_GetSnapShot(host: Host, name:String):List<ZFSSnapShot>{
         var (matched, groups) = matchWhole(line, "^\\s*(.*?)\\s+(\\d\\S*)\\s+(\\S+)\\s+(\\d\\S*)\\s+(\\S+)\\s*$")
         if(matched) {
             var snapshotName = groups[1]
-            if(snapshotName.indexOf("$name@") == -1) {
+            if(snapshotName.indexOf("$name@") != 0) {
                 return@forEach
             }
             var used = groups[2]
