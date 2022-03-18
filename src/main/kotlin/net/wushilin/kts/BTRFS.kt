@@ -17,6 +17,14 @@ fun BTRFS_GetRoot(host:Host, path:String):BTRFSRoot {
     throw IOException("No result matching that pattern found: ${runResult.stdout()}")
 }
 
+fun BTRFS_SubvolumeIsReadonly(host:Host, path:String):Boolean {
+    val runResult = host.execute("btrfs subvolume show '$path' | grep 'Flags:' | grep 'readonly'")
+    if(!runResult.isSuccessful()) {
+        return false
+    }
+    return true
+}
+
 fun BTRFS_IsRoot(host:Host, path:String):Boolean {
     try {
         val fInfo = BTRFS_GetRoot(host, path)

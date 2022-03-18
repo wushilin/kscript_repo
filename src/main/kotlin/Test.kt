@@ -9,6 +9,8 @@ fun main(args:Array<String>) {
     val root1 = BTRFS_GetRoot(stargazer, "/mnt/btrfs")
     val root2 = BTRFS_GetRoot(stargazer, "/mnt/btrfs2")
 
+    println(BTRFS_SubvolumeIsReadonly(stargazer, "/mnt/btrfs/sv3/"))
+    return
     val subv = BTRFS_ListSubvolumes(stargazer, root1)
     println(root1.fullPath())
     subv.forEach {
