@@ -106,12 +106,15 @@ interface BTRFS {
 }
 data class BTRFSRoot(val path:String, val uuid:String, val label:String):BTRFS {
     override fun fullPath():String {
-        return path
+        var resultPath = path.replace(Regex("//"), "/")
+        return resultPath
     }
 }
 
 data class BTRFSSubvolume(val root:BTRFSRoot, val id:Long, val generation:Long, val topLevel:Long, val receivedUuid:String, val uuid:String, val path:String):BTRFS {
     override fun fullPath():String {
-        return root.path + "/" + path
+        var resultPath = root.path + "/" + path
+        resultPath = resultPath.replace(Regex("//"), "/")
+        return resultPath
     }
 }
