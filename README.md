@@ -14,3 +14,6 @@ import java.util.*
 ```
 
 # Check the script for what is possible
+- ZFS support (Listing, Getting info, Snapshotting, Sending snapshot)
+- BTRFS support (Listing, Getting info, Snapshotting, Sending snapshot)
+- 
